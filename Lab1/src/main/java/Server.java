@@ -1,5 +1,4 @@
 import jdk.internal.net.http.common.Pair;
-import jdk.javadoc.internal.doclets.toolkit.taglets.SeeTaglet;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -9,9 +8,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
-    private String address;
-    private int port;
-    private int variable;
+    private InetSocketAddress address;
     private int maxConnection;
 
     private final List<Pair<ByteBuffer, Integer>> clientResponse;
@@ -19,27 +16,20 @@ public class Server {
     private AtomicInteger currentConnection;
 
     private Selector selector;
-    private SocketChannel clientSocket;
     private ServerSocketChannel serverSocket;
 
-    Server(String bindAddress, int bindPort, int var, int connectionNumber) {
-        address = bindAddress;
-        port = bindPort;
-        variable = var;
+    Server(String bindAddress, int bindPort, int connectionNumber) {
+        address = new InetSocketAddress(bindAddress, bindPort);
         maxConnection = connectionNumber;
         clientResponse = new ArrayList<>();
         currentConnection = new AtomicInteger(0);
-    }
-
-    synchronized AtomicInteger getCurrentConnection() {
-        return currentConnection;
     }
 
     void start() throws IOException {
         selector = Selector.open();
 
         currentConnection.compareAndSet(0, 0);
-        serverSocket = ServerSocketChannel.open().bind(new InetSocketAddress(address, port));
+        serverSocket = ServerSocketChannel.open().bind(address);
         serverSocket.configureBlocking(false);
 
         int ops = serverSocket.validOps();
@@ -48,25 +38,20 @@ public class Server {
         //keep server running
         while (true) {
             selector.select();
-            Set<SelectionKey> keys = selector.selectedKeys();
-            Iterator<SelectionKey> it = keys.iterator();
+            Set<SelectionKey> selectedKeys = selector.selectedKeys();
+            Iterator<SelectionKey> it = selectedKeys.iterator();
 
             while (it.hasNext()) {
-                SelectionKey currentKey = it.next();
-                if(currentKey.isAcceptable()){
-                    SocketChannel clientSocket=serverSocket.accept();
-                    clientSocket.configureBlocking(false);
-                    clientSocket.register(selector, SelectionKey.OP_READ);
-                }
-                else if(currentKey.isReadable()){
-                    SocketChannel clientSocket=(SocketChannel)currentKey.channel();
-                    ByteBuffer buffer=ByteBuffer.allocate(256);
-                    clientSocket.read(buffer);
-                    String result= new String(buffer.array()).trim();
 
-                    if(Double.parseDouble(result)==0.0){
-                        clientSocket.close();
-                    }
+                SelectionKey key = it.next();
+
+                if (key.isAcceptable()) {
+                    register(serverSocket, selector);
+                } else if (key.isReadable()) {
+                    SocketChannel clientSocket = (SocketChannel) key.channel();
+                    ByteBuffer buffer = ByteBuffer.allocate(256);
+                    clientSocket.read(buffer);
+                    String result = new String(buffer.array()).trim();
                 }
             }
 
@@ -74,16 +59,14 @@ public class Server {
         }
     }
 
+    private static void register(ServerSocketChannel serverSocket, Selector selector) throws IOException {
+        SocketChannel client = serverSocket.accept();
+        client.configureBlocking(false);
+        client.register(selector, SelectionKey.OP_READ);
+    }
+
     void stop() throws IOException {
         serverSocket.close();
-    }
-
-    private synchronized void write(SocketChannel socketChannel, final int var) {
-
-    }
-
-    private synchronized void read(SocketChannel socketChannel) {
-
     }
 
 }
