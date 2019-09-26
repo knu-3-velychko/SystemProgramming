@@ -26,6 +26,8 @@ public class Server {
     }
 
     void start() throws IOException {
+        System.out.println("Server works");
+
         selector = Selector.open();
 
         currentConnection.compareAndSet(0, 0);
@@ -52,6 +54,7 @@ public class Server {
                     ByteBuffer buffer = ByteBuffer.allocate(256);
                     clientSocket.read(buffer);
                     String result = new String(buffer.array()).trim();
+                    System.out.println(result);
                 }
             }
 

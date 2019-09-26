@@ -27,6 +27,8 @@ public class Client {
     //java -jar Module.jar <args>
     //address port type(int/double) function(f or g) case(0-5)
     public static void main(String[] args) {
+        System.out.println("Client works!");
+
         if (!parseArgs(args)) {
             System.out.println("Invalid arguments.");
             System.exit(0);
