@@ -39,7 +39,7 @@ public class Client {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        while (true);
+        while (true) ;
     }
 
     private static void start() throws IOException, InterruptedException {
