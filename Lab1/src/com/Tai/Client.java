@@ -1,9 +1,9 @@
-import com.sun.org.apache.bcel.internal.generic.ObjectType;
-import spos.lab1.demo.DoubleOps;
-import spos.lab1.demo.IntOps;
+package com.Tai;
+
+//import spos.lab1.demo.DoubleOps;
+//import spos.lab1.demo.IntOps;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -36,37 +36,40 @@ public class Client {
 
         try {
             start();
-        } catch (InterruptedException | IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        while (true);
     }
 
     private static void start() throws IOException, InterruptedException {
         clientSocket = SocketChannel.open(address);
-        if (clientSocket.isConnected()) {
+        if (!clientSocket.isConnected()) {
             System.out.println("Can't connect to server.");
             System.exit(0);
         }
 
         ByteBuffer buffer = ByteBuffer.allocate(256);
-        int a = clientSocket.read(buffer);
-
-        //TODO
-
+        byte[] message = new byte[256];
         Object computationResult = function.apply(fCase);
         buffer.flip();
+
         if (computationResult instanceof Integer) {
-            buffer.asIntBuffer().put((Integer) computationResult);
+            message = ((Integer) computationResult).toString().getBytes();
         } else if (computationResult instanceof Double) {
-            buffer.asDoubleBuffer().put((Double) computationResult);
+            message = ((Double) computationResult).toString().getBytes();
         } else {
             System.out.println("Wrong functions.");
             System.exit(0);
         }
 
+        buffer = ByteBuffer.wrap(message);
         clientSocket.write(buffer);
         System.out.println("Message send.");
-        clientSocket.close();
+        buffer.clear();
+        clientSocket.read(buffer);
+        Thread.sleep(2000);
+        //clientSocket.close();
     }
 
     private static boolean parseArgs(String[] args) {
@@ -76,10 +79,10 @@ public class Client {
 
         switch (args[2]) {
             case "int":
-                parseIntFunction(args[3]);
+                if (!parseIntFunction(args[3])) return false;
                 break;
             case "double":
-                parseDoubleFunction(args[3]);
+                if (!parseDoubleFunction(args[3])) return false;
                 break;
             default:
                 return false;
@@ -97,22 +100,22 @@ public class Client {
         switch (arg) {
             case "f":
                 function = i -> {
-                    try {
-                        return IntOps.funcF(i);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return 0;
-                    }
+                    //try {
+                    return 3;
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        return 0;
+//                    }
                 };
                 break;
             case "g":
                 function = i -> {
-                    try {
-                        return IntOps.funcG(i);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return 0;
-                    }
+                    //  try {
+                    return 5;
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        return 0;
+//                    }
                 };
                 break;
             default:
@@ -125,22 +128,22 @@ public class Client {
         switch (arg) {
             case "f":
                 function = i -> {
-                    try {
-                        return DoubleOps.funcF(i);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return 0.0;
-                    }
+                    //try {
+                    return 3.0;
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        return 0.0;
+//                    }
                 };
                 break;
             case "g":
                 function = i -> {
-                    try {
-                        return DoubleOps.funcG(i);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return 0.0;
-                    }
+                    //try {
+                    return 5.0;
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        return 0.0;
+//                    }
                 };
                 break;
             default:
