@@ -1,8 +1,6 @@
 # Compiled class file
 *.class
 
-*.iml
-
 Lab1/.idea/
 
 Lab1-Client/.idea/

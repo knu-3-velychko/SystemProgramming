@@ -28,21 +28,20 @@ public class Client {
     public static void main(String[] args) {
         System.out.println("Client works!");
 
-        String[] arg={"localhost","1052","int","f","0"};
-        if (!parseArgs(arg)) {
+        //String[] arg = {"localhost", "1052", "int", "f", "0"};
+        if (!parseArgs(args)) {
             System.out.println("Invalid arguments.");
             System.exit(0);
         }
 
         try {
             start();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        while (true);
     }
 
-    private static void start() throws IOException, InterruptedException {
+    private static void start() throws IOException {
         clientSocket = SocketChannel.open(address);
         if (!clientSocket.isConnected()) {
             System.out.println("Can't connect to server.");
@@ -51,31 +50,22 @@ public class Client {
 
         ByteBuffer buffer = ByteBuffer.allocate(256);
         byte[] message = new byte[256];
-        //Object computationResult = function.apply(fCase);
+        Object computationResult = function.apply(fCase);
         buffer.flip();
 
-//        if (computationResult instanceof Integer) {
-//            message = ((Integer) computationResult).toString().getBytes();
-//        } else if (computationResult instanceof Double) {
-//            message = ((Double) computationResult).toString().getBytes();
-//        } else {
-//            System.out.println("Wrong functions.");
-//            System.exit(0);
-//        }
+        if (computationResult instanceof Integer) {
+            message = ((Integer) computationResult).toString().getBytes();
+        } else if (computationResult instanceof Double) {
+            message = ((Double) computationResult).toString().getBytes();
+        } else {
+            System.out.println("Wrong functions.");
+            System.exit(0);
+        }
 
-        //try {
-        Double result = DoubleOps.funcF(0);
-        System.out.println(result);
-        buffer = ByteBuffer.wrap(result.toString().getBytes());
+        buffer = ByteBuffer.wrap(message);
         clientSocket.write(buffer);
         System.out.println("Message send.");
-        //buffer.clear();
-        //Thread.sleep(2000);
-
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
+        buffer.clear();
 
         clientSocket.close();
     }

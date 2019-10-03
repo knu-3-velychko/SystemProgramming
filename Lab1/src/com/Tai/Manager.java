@@ -55,13 +55,14 @@ public class Manager {
 
         //keep server running
         while (true) {
+            System.out.println(clientProcesses.get(0).isAlive());
+
             selector.select();
 
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
             Iterator<SelectionKey> it = selectedKeys.iterator();
 
             while (it.hasNext()) {
-                //System.out.println(clientProcesses.get(0).isAlive());
                 SelectionKey key = it.next();
 
                 if (key.isAcceptable()) {
@@ -72,6 +73,7 @@ public class Manager {
                     clientSocket.read(buffer);
                     String result = new String(buffer.array()).trim();
                     System.out.println(result);
+                    clientSocket.close();
                 }
             }
 
@@ -93,7 +95,13 @@ public class Manager {
 
     void compute(String function) {
         System.out.println(path);
-        ProcessBuilder clientBuilder =new ProcessBuilder("java", "-jar",path+"\\"+"Lab1-Client.jar");
+        ProcessBuilder clientBuilder =
+                new ProcessBuilder("java", "-jar", path + "\\" + "Lab1-Client.jar",
+                        address.getHostString(),
+                        Integer.toString(address.getPort()),
+                        type,
+                        function,
+                        Integer.toString(fCase));
 //                new ProcessBuilder("java", "-cp", path, "com.Tai.Client",
 //                        address.getHostString(),
 //                        Integer.toString(address.getPort()),
