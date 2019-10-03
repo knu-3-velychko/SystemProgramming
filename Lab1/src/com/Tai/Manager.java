@@ -61,6 +61,7 @@ public class Manager {
             Iterator<SelectionKey> it = selectedKeys.iterator();
 
             while (it.hasNext()) {
+                //System.out.println(clientProcesses.get(0).isAlive());
                 SelectionKey key = it.next();
 
                 if (key.isAcceptable()) {
@@ -91,13 +92,14 @@ public class Manager {
     }
 
     void compute(String function) {
-        ProcessBuilder clientBuilder =
-                new ProcessBuilder("java", "-cp", path, "com.Tai.Client",
-                        address.getHostString(),
-                        Integer.toString(address.getPort()),
-                        type,
-                        function,
-                        Integer.toString(fCase));
+        System.out.println(path);
+        ProcessBuilder clientBuilder =new ProcessBuilder("java", "-jar",path+"\\"+"Lab1-Client.jar");
+//                new ProcessBuilder("java", "-cp", path, "com.Tai.Client",
+//                        address.getHostString(),
+//                        Integer.toString(address.getPort()),
+//                        type,
+//                        function,
+//                        Integer.toString(fCase));
 
         try {
             clientProcesses.add(clientBuilder.start());

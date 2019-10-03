@@ -1,7 +1,7 @@
 package com.Tai;
 
-//import spos.lab1.demo.DoubleOps;
-//import spos.lab1.demo.IntOps;
+import spos.lab1.demo.DoubleOps;
+import spos.lab1.demo.IntOps;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -24,12 +24,12 @@ public class Client {
         double operation(int a);
     }
 
-    //java -jar Module.jar <args>
     //address port type(int/double) function(f or g) case(0-5)
     public static void main(String[] args) {
         System.out.println("Client works!");
 
-        if (!parseArgs(args)) {
+        String[] arg={"localhost","1052","int","f","0"};
+        if (!parseArgs(arg)) {
             System.out.println("Invalid arguments.");
             System.exit(0);
         }
@@ -39,7 +39,7 @@ public class Client {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        while (true) ;
+        while (true);
     }
 
     private static void start() throws IOException, InterruptedException {
@@ -51,25 +51,33 @@ public class Client {
 
         ByteBuffer buffer = ByteBuffer.allocate(256);
         byte[] message = new byte[256];
-        Object computationResult = function.apply(fCase);
+        //Object computationResult = function.apply(fCase);
         buffer.flip();
 
-        if (computationResult instanceof Integer) {
-            message = ((Integer) computationResult).toString().getBytes();
-        } else if (computationResult instanceof Double) {
-            message = ((Double) computationResult).toString().getBytes();
-        } else {
-            System.out.println("Wrong functions.");
-            System.exit(0);
-        }
+//        if (computationResult instanceof Integer) {
+//            message = ((Integer) computationResult).toString().getBytes();
+//        } else if (computationResult instanceof Double) {
+//            message = ((Double) computationResult).toString().getBytes();
+//        } else {
+//            System.out.println("Wrong functions.");
+//            System.exit(0);
+//        }
 
-        buffer = ByteBuffer.wrap(message);
+        //try {
+        Double result = DoubleOps.funcF(0);
+        System.out.println(result);
+        buffer = ByteBuffer.wrap(result.toString().getBytes());
         clientSocket.write(buffer);
         System.out.println("Message send.");
-        buffer.clear();
-        clientSocket.read(buffer);
-        Thread.sleep(2000);
-        //clientSocket.close();
+        //buffer.clear();
+        //Thread.sleep(2000);
+
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+        clientSocket.close();
     }
 
     private static boolean parseArgs(String[] args) {
@@ -100,8 +108,9 @@ public class Client {
         switch (arg) {
             case "f":
                 function = i -> {
-                    //try {
                     return 3;
+//                    try {
+//                        return IntOps.funcF(i);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                        return 0;
@@ -110,8 +119,9 @@ public class Client {
                 break;
             case "g":
                 function = i -> {
-                    //  try {
                     return 5;
+//                    try {
+//                        return IntOps.funcG(i);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                        return 0;
@@ -128,21 +138,23 @@ public class Client {
         switch (arg) {
             case "f":
                 function = i -> {
-                    //try {
                     return 3.0;
+//                    try {
+//                        return DoubleOps.funcF(i);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
-//                        return 0.0;
+//                        return 0;
 //                    }
                 };
                 break;
             case "g":
                 function = i -> {
-                    //try {
                     return 5.0;
+//                    try {
+//                        return DoubleOps.funcG(i);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
-//                        return 0.0;
+//                        return 0;
 //                    }
                 };
                 break;
