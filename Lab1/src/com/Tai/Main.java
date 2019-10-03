@@ -7,6 +7,7 @@ public class Main {
         Manager manager = new Manager("localhost", 1052, 2, 0, "int", true);
         try {
             manager.start();
+            manager.quit();
         } catch (IOException e) {
             e.printStackTrace();
         }

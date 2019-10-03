@@ -16,6 +16,7 @@ public class Manager {
     private List<Process> clientProcesses;
 
     private boolean promptEnabled;
+    private boolean calculationsEnabled;
 
     private AtomicInteger currentConnection;
 
@@ -26,11 +27,16 @@ public class Manager {
     private String type;
     private String path;
 
+    private static final long delta = 1000;
+    private Scanner sc;
+    long lastPromptTime;
+
     Manager(String bindAddress, int bindPort, int connectionNumber, int fCase, String type, boolean promptEnabled) {
         address = new InetSocketAddress(bindAddress, bindPort);
         maxConnection = connectionNumber;
 
         this.promptEnabled = promptEnabled;
+        calculationsEnabled = true;
         clientProcesses = new ArrayList<>();
 
         this.fCase = fCase;
@@ -39,6 +45,9 @@ public class Manager {
         String classPath = System.getProperty("java.class.path");
         String[] classpathEntries = classPath.split(";");
         path = classpathEntries[0];
+
+        sc = new Scanner(System.in);
+        lastPromptTime = System.currentTimeMillis();
     }
 
     void start() throws IOException {
@@ -54,9 +63,13 @@ public class Manager {
         compute("g");
 
         //keep server running
-        while (true) {
-            System.out.println(clientProcesses.get(0).isAlive());
-
+        while (calculationsEnabled) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            prompt();
             selector.select();
 
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -76,7 +89,6 @@ public class Manager {
                     clientSocket.close();
                 }
             }
-
         }
     }
 
@@ -114,5 +126,50 @@ public class Manager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void prompt() {
+        if (promptEnabled && (System.currentTimeMillis() - lastPromptTime) > delta) {
+            lastPromptTime = System.currentTimeMillis();
+            System.out.println("Computation taking too long. Would you like to:");
+            System.out.println("(a) continue");
+            System.out.println("(b) continue without prompt");
+            System.out.println("(c) cancel");
+            boolean correct = false;
+            while (!correct) {
+                while (!sc.hasNextLine()) ;
+                String line = sc.nextLine().toLowerCase();
+                correct = true;
+                switch (line) {
+                    case "a": {
+                        lastPromptTime = System.currentTimeMillis();
+                        break;
+                    }
+                    case "b": {
+                        promptEnabled = false;
+                        break;
+                    }
+                    case "c": {
+                        calculationsEnabled = false;
+                        break;
+                    }
+                    default: {
+                        correct = false;
+                        System.out.println("Incorrect response: " + line);
+                    }
+                }
+            }
+        }
+    }
+
+    void killClientProcesses() {
+        for (Process i : clientProcesses) {
+            i.destroy();
+        }
+    }
+
+    public void quit() {
+        killClientProcesses();
+        System.out.flush();
     }
 }
