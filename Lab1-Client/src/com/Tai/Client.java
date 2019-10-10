@@ -15,6 +15,7 @@ public class Client {
 
     private static Function<Integer, Object> function;
     private static int fCase;
+    private static String name;
 
     interface FunctionInt {
         int operation(int a);
@@ -53,14 +54,17 @@ public class Client {
         Object computationResult = function.apply(fCase);
         buffer.flip();
 
+        String result = null;
         if (computationResult instanceof Integer) {
-            message = ((Integer) computationResult).toString().getBytes();
+            result = ((Integer) computationResult).toString();
         } else if (computationResult instanceof Double) {
-            message = ((Double) computationResult).toString().getBytes();
+            result = ((Double) computationResult).toString();
         } else {
             System.out.println("Wrong functions.");
             System.exit(0);
         }
+
+        message = (name + " " + result).getBytes();
 
         buffer = ByteBuffer.wrap(message);
         clientSocket.write(buffer);
@@ -74,13 +78,14 @@ public class Client {
         if (args.length != 5) return false;
 
         address = new InetSocketAddress(args[0], Integer.parseInt(args[1]));
+        name = args[3];
 
         switch (args[2]) {
             case "int":
-                if (!parseIntFunction(args[3])) return false;
+                if (!parseIntFunction(name)) return false;
                 break;
             case "double":
-                if (!parseDoubleFunction(args[3])) return false;
+                if (!parseDoubleFunction(name)) return false;
                 break;
             default:
                 return false;
@@ -98,24 +103,22 @@ public class Client {
         switch (arg) {
             case "f":
                 function = i -> {
-                    return 3;
-//                    try {
-//                        return IntOps.funcF(i);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        return 0;
-//                    }
+                    try {
+                        return IntOps.funcF(i);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return 0;
+                    }
                 };
                 break;
             case "g":
                 function = i -> {
-                    return 5;
-//                    try {
-//                        return IntOps.funcG(i);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        return 0;
-//                    }
+                    try {
+                        return IntOps.funcG(i);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return 0;
+                    }
                 };
                 break;
             default:
@@ -128,24 +131,22 @@ public class Client {
         switch (arg) {
             case "f":
                 function = i -> {
-                    return 3.0;
-//                    try {
-//                        return DoubleOps.funcF(i);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        return 0;
-//                    }
+                    try {
+                        return DoubleOps.funcF(i);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return 0;
+                    }
                 };
                 break;
             case "g":
                 function = i -> {
-                    return 5.0;
-//                    try {
-//                        return DoubleOps.funcG(i);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        return 0;
-//                    }
+                    try {
+                        return DoubleOps.funcG(i);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return 0;
+                    }
                 };
                 break;
             default:
