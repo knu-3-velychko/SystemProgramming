@@ -12,22 +12,19 @@ public class NonblockingBufferedReader {
     private Thread backgroundReaderThread = null;
 
     public NonblockingBufferedReader(final BufferedReader bufferedReader) {
-        backgroundReaderThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (!Thread.interrupted()) {
-                        String line = bufferedReader.readLine();
-                        if (line == null) {
-                            break;
-                        }
-                        lines.add(line);
+        backgroundReaderThread = new Thread(() -> {
+            try {
+                while (!Thread.interrupted()) {
+                    String line = bufferedReader.readLine();
+                    if (line == null) {
+                        break;
                     }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    closed = true;
+                    lines.add(line);
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                closed = true;
             }
         });
         backgroundReaderThread.setDaemon(true);

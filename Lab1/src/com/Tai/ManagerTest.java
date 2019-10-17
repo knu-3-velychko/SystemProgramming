@@ -18,7 +18,7 @@ class ManagerTest {
         assertEquals(results.size(), 2);
         assertEquals(results.get("f"), DoubleOps.funcF(0));
         assertEquals(results.get("g"), DoubleOps.funcG(0));
-        assertTrue(manager.getConjunction());
+        assertEquals(manager.getConjunction(), 15.0);
     }
 
     @Test
@@ -29,7 +29,7 @@ class ManagerTest {
         assertEquals(results.size(), 2);
         assertEquals(results.get("f"), DoubleOps.funcF(1));
         assertEquals(results.get("g"), DoubleOps.funcG(1));
-        assertTrue(manager.getConjunction());
+        assertEquals(manager.getConjunction(), 15.0);
     }
 
     @Test
@@ -39,7 +39,7 @@ class ManagerTest {
         HashMap<String, Double> results = manager.getResults();
         assertEquals(results.size(), 1);
         assertEquals(results.get("f"), DoubleOps.funcF(2));
-        assertFalse(manager.getConjunction());
+        assertEquals(manager.getConjunction(), 0.0);
     }
 
     @Test
@@ -49,7 +49,7 @@ class ManagerTest {
         HashMap<String, Double> results = manager.getResults();
         assertEquals(results.size(), 1);
         assertEquals(results.get("g"), DoubleOps.funcG(3));
-        assertFalse(manager.getConjunction());
+        assertEquals(manager.getConjunction(), 0.0);
     }
 
 //    @Test
