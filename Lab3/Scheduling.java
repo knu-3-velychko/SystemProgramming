@@ -19,6 +19,7 @@ public class Scheduling {
     private static Vector<sProcess> processVector = new Vector<>();
     private static Results result = new Results("null", "null", 0);
     private static String resultsFile = "Summary-Results";
+    private static String logFile = "Summary-Processes";
 
     private static void Init(String file) {
         File f = new File(file);
@@ -67,6 +68,16 @@ public class Scheduling {
                     StringTokenizer st = new StringTokenizer(line);
                     st.nextToken();
                     runtime = Common.s2i(st.nextToken());
+                }
+                if (line.startsWith("summary_file")) {
+                    StringTokenizer st = new StringTokenizer(line);
+                    st.nextToken();
+                    resultsFile = st.nextToken();
+                }
+                if (line.startsWith("log_file")) {
+                    StringTokenizer st = new StringTokenizer(line);
+                    st.nextToken();
+                    logFile = st.nextToken();
                 }
             }
             in.close();
@@ -120,7 +131,7 @@ public class Scheduling {
                 i++;
             }
         }
-        result = SchedulingAlgorithm.Run(runtime, processVector, result);
+        result = SchedulingAlgorithm.run(runtime, processVector, result, logFile);
         try {
             //BufferedWriter out = new BufferedWriter(new FileWriter(resultsFile));
             PrintStream out = new PrintStream(new FileOutputStream(resultsFile));

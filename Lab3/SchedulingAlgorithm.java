@@ -7,14 +7,14 @@ import java.io.*;
 
 public class SchedulingAlgorithm {
 
-    public static Results Run(int runtime, Vector processVector, Results result) {
+    public static Results run(int runtime, Vector processVector, Results result, String logFile) {
         int i = 0;
         int comptime = 0;
         int previousProcess = -1;
         int currentProcess = selectProcess(processVector, previousProcess);
         int size = processVector.size();
         int completed = 0;
-        String resultsFile = "Summary-Processes";
+        String resultsFile = logFile;
 
         result.schedulingType = "Batch (Nonpreemptive)";
         result.schedulingName = "Shortest job first";
