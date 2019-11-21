@@ -2,6 +2,7 @@
 // the scheduling algorithm written by the user resides.
 // User modification should occur within the Run() function.
 
+import java.util.Comparator;
 import java.util.Vector;
 import java.io.*;
 
@@ -15,6 +16,8 @@ public class SchedulingAlgorithm {
         int size = processVector.size();
         int completed = 0;
         String resultsFile = logFile;
+        Vector<sProcess> vector = getVector(processVector);
+        Comparator cmp = new ProcessPriorityComparator();
 
         result.schedulingType = "Batch (Nonpreemptive)";
         result.schedulingName = "Shortest job first";
@@ -23,7 +26,7 @@ public class SchedulingAlgorithm {
             //OutputStream out = new FileOutputStream(resultsFile);
             PrintStream out = new PrintStream(new FileOutputStream(resultsFile));
 
-            processVector.sort(new ProcessPriorityComparator());
+            processVector.sort(cmp);
 
             sProcess process = processVector.elementAt(currentProcess);
             out.println("Process: " + process.number + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
@@ -36,18 +39,18 @@ public class SchedulingAlgorithm {
                         out.close();
                         return result;
                     }
-                    //TODO
-
+                    vector = getVector(processVector);
+                    if (vector.isEmpty())
+                        break;
                     currentProcess++;
-                    if (currentProcess >= size)
+                    if (currentProcess >= vector.size())
                         currentProcess = 0;
-                    process = processVector.elementAt(currentProcess);
-                    while (process.cpudone > process.cputime && currentProcess < size - 1) {
-                        currentProcess++;
-                        process = processVector.elementAt(currentProcess);
-                    }
+                    process = vector.elementAt(currentProcess);
 
-                    process = processVector.elementAt(currentProcess);
+                    if (currentProcess == previousProcess && process.cpudone >= process.cputime) {
+                        out.println("Process: " + process.number + " completed... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
+                        break;
+                    }
                     out.println("Process: " + process.number + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + process.priority + ")");
                 }
                 if (process.ioblocking == process.ionext) {
@@ -56,16 +59,19 @@ public class SchedulingAlgorithm {
                     process.ionext = 0;
                     previousProcess = currentProcess;
 
+                    vector = getVector(processVector);
+                    if (vector.isEmpty())
+                        break;
                     currentProcess++;
-                    if (currentProcess >= size)
+                    if (currentProcess >= vector.size())
                         currentProcess = 0;
-                    process = processVector.elementAt(currentProcess);
-                    while (process.cpudone > process.cputime && currentProcess < size - 1) {
-                        process = processVector.elementAt(currentProcess);
-                        currentProcess++;
+                    process = vector.elementAt(currentProcess);
+
+                    if (currentProcess == previousProcess && process.cpudone >= process.cputime) {
+                        out.println("Process: " + process.number + " completed... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
+                        break;
                     }
 
-                    process = processVector.elementAt(currentProcess);
                     out.println("Process: " + process.number + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
                 }
                 process.cpudone++;
@@ -80,41 +86,13 @@ public class SchedulingAlgorithm {
         return result;
     }
 
-    private static int selectProcess(Vector<sProcess> processVector, int previousProcess) {
-        int size = processVector.size();
-        int current = getFirstWaitingProcess(processVector, previousProcess);
-        sProcess process = processVector.get(0);
-        for (int i = 0; i < size; i++) {
-            sProcess tmp = processVector.get(i);
-            if (isValid(processVector, i, previousProcess)) {
-                if (cmp(tmp, process)) {
-                    process = tmp;
-                    current = i;
-                }
-            }
+
+    private static Vector<sProcess> getVector(Vector<sProcess> processVector) {
+        Vector<sProcess> vector = new Vector<>();
+        for (sProcess process : processVector) {
+            if (process.cputime > process.cpudone)
+                vector.add(process);
         }
-        return current;
-    }
-
-    private static boolean cmp(sProcess process1, sProcess process2) {
-        return process1.ioblocking < process2.ioblocking;
-        //return process1.priority / process1.ioblocking > process2.priority / process2.ioblocking;
-    }
-
-    private static int getFirstWaitingProcess(Vector<sProcess> processVector, int previousProcess) {
-        int size = processVector.size();
-        for (int i = 0; i < size; i++) {
-            if (isValid(processVector, i, previousProcess))
-                return i;
-        }
-        return previousProcess;
-    }
-
-    private static boolean isValid(Vector<sProcess> processVector, int process, int previousProcess) {
-        return process != previousProcess && isWaitingProcess(processVector.get(process));
-    }
-
-    private static boolean isWaitingProcess(sProcess process) {
-        return process.cpudone < process.cputime && process.ioblocking != process.ionext;
+        return vector;
     }
 }
