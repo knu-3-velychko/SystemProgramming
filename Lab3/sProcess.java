@@ -1,4 +1,5 @@
 public class sProcess {
+    public int number;
     public int cputime;
     public int ioblocking;
     public int cpudone;
@@ -7,7 +8,8 @@ public class sProcess {
     public int priority;
 
 
-    public sProcess(int cputime, int ioblocking, int cpudone, int ionext, int numblocked, int priority) {
+    public sProcess(int number, int cputime, int ioblocking, int cpudone, int ionext, int numblocked, int priority) {
+        this.number = number;
         this.cputime = cputime;
         this.ioblocking = ioblocking;
         this.cpudone = cpudone;

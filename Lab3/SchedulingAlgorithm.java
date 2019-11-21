@@ -7,11 +7,11 @@ import java.io.*;
 
 public class SchedulingAlgorithm {
 
-    public static Results run(int runtime, Vector processVector, Results result, String logFile) {
+    public static Results run(int runtime, Vector<sProcess> processVector, Results result, String logFile) {
         int i = 0;
         int comptime = 0;
         int previousProcess = -1;
-        int currentProcess = selectProcess(processVector, previousProcess);
+        int currentProcess = 0;
         int size = processVector.size();
         int completed = 0;
         String resultsFile = logFile;
@@ -22,42 +22,51 @@ public class SchedulingAlgorithm {
             //BufferedWriter out = new BufferedWriter(new FileWriter(resultsFile));
             //OutputStream out = new FileOutputStream(resultsFile);
             PrintStream out = new PrintStream(new FileOutputStream(resultsFile));
-            sProcess process = (sProcess) processVector.elementAt(currentProcess);
-            out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+
+            processVector.sort(new ProcessPriorityComparator());
+
+            sProcess process = processVector.elementAt(currentProcess);
+            out.println("Process: " + process.number + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
             while (comptime < runtime) {
                 if (process.cpudone == process.cputime) {
                     completed++;
-                    out.println("Process: " + currentProcess + " completed... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+                    out.println("Process: " + process.number + " completed... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
                     if (completed == size) {
                         result.compuTime = comptime;
                         out.close();
                         return result;
                     }
                     //TODO
-                    currentProcess = selectProcess(processVector, previousProcess);
-//                    for (i = size - 1; i >= 0; i--) {
-//                        process = (sProcess) processVector.elementAt(i);
-//                        if (process.cpudone < process.cputime) {
-//                            currentProcess = i;
-//                        }
-//                    }
-                    process = (sProcess) processVector.elementAt(currentProcess);
-                    out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+
+                    currentProcess++;
+                    if (currentProcess >= size)
+                        currentProcess = 0;
+                    process = processVector.elementAt(currentProcess);
+                    while (process.cpudone > process.cputime && currentProcess < size - 1) {
+                        currentProcess++;
+                        process = processVector.elementAt(currentProcess);
+                    }
+
+                    process = processVector.elementAt(currentProcess);
+                    out.println("Process: " + process.number + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + process.priority + ")");
                 }
                 if (process.ioblocking == process.ionext) {
-                    out.println("Process: " + currentProcess + " I/O blocked... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+                    out.println("Process: " + process.number + " I/O blocked... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
                     process.numblocked++;
                     process.ionext = 0;
                     previousProcess = currentProcess;
-                    currentProcess = selectProcess(processVector, previousProcess);
-//                    for (i = size - 1; i >= 0; i--) {
-//                        process = (sProcess) processVector.elementAt(i);
-//                        if (process.cpudone < process.cputime && previousProcess != i) {
-//                            currentProcess = i;
-//                        }
-//                    }
-                    process = (sProcess) processVector.elementAt(currentProcess);
-                    out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+
+                    currentProcess++;
+                    if (currentProcess >= size)
+                        currentProcess = 0;
+                    process = processVector.elementAt(currentProcess);
+                    while (process.cpudone > process.cputime && currentProcess < size - 1) {
+                        process = processVector.elementAt(currentProcess);
+                        currentProcess++;
+                    }
+
+                    process = processVector.elementAt(currentProcess);
+                    out.println("Process: " + process.number + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + " " + process.priority + ")");
                 }
                 process.cpudone++;
                 if (process.ioblocking > 0) {
@@ -71,12 +80,12 @@ public class SchedulingAlgorithm {
         return result;
     }
 
-    private static int selectProcess(Vector processVector, int previousProcess) {
+    private static int selectProcess(Vector<sProcess> processVector, int previousProcess) {
         int size = processVector.size();
         int current = getFirstWaitingProcess(processVector, previousProcess);
-        sProcess process = (sProcess) processVector.get(0);
+        sProcess process = processVector.get(0);
         for (int i = 0; i < size; i++) {
-            sProcess tmp = (sProcess) processVector.get(i);
+            sProcess tmp = processVector.get(i);
             if (isValid(processVector, i, previousProcess)) {
                 if (cmp(tmp, process)) {
                     process = tmp;
@@ -92,7 +101,7 @@ public class SchedulingAlgorithm {
         //return process1.priority / process1.ioblocking > process2.priority / process2.ioblocking;
     }
 
-    private static int getFirstWaitingProcess(Vector processVector, int previousProcess) {
+    private static int getFirstWaitingProcess(Vector<sProcess> processVector, int previousProcess) {
         int size = processVector.size();
         for (int i = 0; i < size; i++) {
             if (isValid(processVector, i, previousProcess))
@@ -101,8 +110,8 @@ public class SchedulingAlgorithm {
         return previousProcess;
     }
 
-    private static boolean isValid(Vector processVector, int process, int previousProcess) {
-        return process != previousProcess && isWaitingProcess((sProcess) processVector.get(process));
+    private static boolean isValid(Vector<sProcess> processVector, int process, int previousProcess) {
+        return process != previousProcess && isWaitingProcess(processVector.get(process));
     }
 
     private static boolean isWaitingProcess(sProcess process) {
