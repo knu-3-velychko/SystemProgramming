@@ -1,3 +1,6 @@
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+
 public abstract class Lockable implements FixnumLockable {
     private long[] threadsID;   //thread id is positive long
     private int size;
@@ -27,6 +30,7 @@ public abstract class Lockable implements FixnumLockable {
         for (int i = 0; i < size; i++) {
             if (threadsID[i] <= 0) {
                 threadsID[i] = id;
+                return;
             }
         }
         assert (false);
@@ -50,5 +54,15 @@ public abstract class Lockable implements FixnumLockable {
         for (int i = 0; i < size; i++) {
             threadsID[i] = -1;
         }
+    }
+
+    @Override
+    public void lockInterruptibly() throws InterruptedException {
+    }
+
+
+    @Override
+    public Condition newCondition() {
+        return null;
     }
 }
