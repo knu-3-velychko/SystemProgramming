@@ -2,6 +2,7 @@ public class Main {
     public static void main(String[] args) {
         int step = 100000;
         try {
+            // TAI
             DekkersAlgorithm.run(step);
 
             RaceCondition.simulateRaceCondition(step);
@@ -9,6 +10,9 @@ public class Main {
             RaceCondition.checkLock(emptyLock, step);
             DekkerLock dekkerLock = new DekkerLock();
             RaceCondition.checkLock(dekkerLock, step);
+
+            // VLAD
+            BakeryLockAlgorithm.simulateBakeryLock();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
