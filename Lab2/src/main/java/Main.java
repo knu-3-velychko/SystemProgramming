@@ -12,7 +12,8 @@ public class Main {
             RaceCondition.checkLock(dekkerLock, step);
 
             // VLAD
-            BakeryLockAlgorithm.simulateBakeryLock();
+            long[] res = BakeryLockAlgorithm.simulateBakeryLock();
+            for (int i = 0; i < res.length; i++) System.out.print(res[i] + " | ");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

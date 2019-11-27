@@ -1,30 +1,38 @@
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class BakeryLockAlgorithm {
     private static final int THREADS = 4;
-    private static int NUMBERS = 100_000;
+    private static int NUMBERS = 1_000;
     private static BakeryLock bakeryLock = new BakeryLock(THREADS);
     private static long[] testResults = new long[THREADS * NUMBERS];
 
     private static int tested = 0;
     private static int testedIndex = 0;
 
-    public static void simulateBakeryLock() throws InterruptedException {
+    public static long[] simulateBakeryLock() throws InterruptedException {
         int[] parameters = new int[THREADS];
-        Random random = new Random(System.currentTimeMillis());
+        List<Integer> parList = new ArrayList<>();
+        for (int i = 0; i < THREADS / 2; i++) {
+            parList.add(1);
+            parList.add(-1);
+        }
+        Collections.shuffle(parList);
         for (int i = 0; i < THREADS; i++) {
-            if (random.nextBoolean())
-                parameters[i] = -1;
-            else
-                parameters[i] = 1;
+            parameters[i] = parList.get(i);
         }
 
         Thread[] threads = new Thread[THREADS];
 
         for (int i = 0; i < THREADS; i++)
             threads[i] = new Thread(function(parameters[i]));
-        for (int i = 0; i < THREADS; i++)
+        for (int i = 0; i < THREADS; i++) {
+            threads[i].start();
             threads[i].join();
+        }
+
+        return testResults;
     }
 
     private static Runnable function(int value) {
