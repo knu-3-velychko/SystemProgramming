@@ -13,7 +13,7 @@ public class Main {
 
             // VLAD
             long[] res = BakeryLockAlgorithm.simulateBakeryLock();
-            for (int i = 0; i < res.length; i++) System.out.print(res[i] + " | ");
+            for (long re : res) System.out.print(re + " | ");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
