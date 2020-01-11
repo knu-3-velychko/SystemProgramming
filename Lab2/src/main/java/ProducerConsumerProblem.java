@@ -11,10 +11,10 @@ public class ProducerConsumerProblem {
     private AtomicInteger[] buffer = new AtomicInteger[1000];
 
     public void run() throws InterruptedException {
-//        Thread consumer = new Thread(new Consumer(buffer, length));
-//        Thread producer = new Thread(new Producer(buffer, length));
-        Thread consumer = new Thread(new WastefulConsumer(sleepingConsumer, sleepingConsumer, buffer, length));
-        Thread producer = new Thread(new WastefulProducer(sleepingProducer, sleepingConsumer, buffer, length));
+        Thread consumer = new Thread(new Consumer(buffer, length));
+        Thread producer = new Thread(new Producer(buffer, length));
+//        Thread consumer = new Thread(new WastefulConsumer(sleepingConsumer, sleepingConsumer, buffer, length));
+//        Thread producer = new Thread(new WastefulProducer(sleepingProducer, sleepingConsumer, buffer, length));
         producer.start();
         consumer.start();
         producer.join();

@@ -12,11 +12,11 @@ public class Main {
 //            RaceCondition.checkLock(dekkerLock, step);
 //
 //            // VLAD
-//            long[] res = BakeryLockAlgorithm.simulateBakeryLock();
+            long[] res = BakeryLockAlgorithm.simulateBakeryLock();
 //            for (long re : res) System.out.print(re + " | ");
 
-            ProducerConsumerProblem pcProblem = new ProducerConsumerProblem();
-            pcProblem.run();
+//            ProducerConsumerProblem pcProblem = new ProducerConsumerProblem();
+//            pcProblem.run();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

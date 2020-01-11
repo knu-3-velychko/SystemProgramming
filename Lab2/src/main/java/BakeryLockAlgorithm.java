@@ -29,6 +29,8 @@ public class BakeryLockAlgorithm {
             threads[i] = new Thread(function(parameters[i]));
         for (int i = 0; i < THREADS; i++) {
             threads[i].start();
+        }
+        for(int i=0;i<THREADS;i++){
             threads[i].join();
         }
 
@@ -37,15 +39,16 @@ public class BakeryLockAlgorithm {
 
     private static Runnable function(int value) {
         return () -> {
+            bakeryLock.registerThread(Thread.currentThread().getId());
             for (int i = 0; i < NUMBERS; i++) {
-                bakeryLock.registerThread();
                 bakeryLock.lock();
                 tested += value;
                 testResults[testedIndex] = tested;
                 testedIndex++;
+                System.out.println(bakeryLock.getID() + " changed counter to " + tested);
                 bakeryLock.unlock();
-                bakeryLock.unregisterThread();
             }
+            bakeryLock.unregisterThread();
         };
     }
 }
